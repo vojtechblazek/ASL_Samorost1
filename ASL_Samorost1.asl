@@ -1,14 +1,10 @@
-state("Samorost1") // This tells LiveSplit which process to connect to.
-{
-    uint Value: "Adobe AIR.dll", 0x00DCD3B8, 0xCFC, 0x4, 0x1B4, 0x1C, 0x99C; // Value that does it all. Ends the timer and does all the splits (even the unwanted ones)
-    uint Start: "Adobe AIR.dll", 0xDCBDA0; // Value that starts the run. Found by Streetbackguy. No clue how it behaves.
+state("Samorost1"){
+    uint Value: "Adobe AIR.dll", 0x00DCD3B8, 0xCFC, 0x4, 0x1B4, 0x1C, 0x99C;
+    uint Start: "Adobe AIR.dll", 0xDCBDA0; //It's a direct adress, why it works, don't ask me
 }
 
-startup
-{
-    //This value increases with every Value change. All of the settings below are tied to a specific SetChecker value.
+startup{
     vars.SetChecker = 0;
-    //sets up a tree of split options. Birst batch are the level splits, under that are the optional splits.    
     settings.Add("MAIN", true, "Splits");
         settings.Add("Tree1", true, "Levels", "MAIN");
             settings.Add("LEVEL1", true, "Skiing Hill", "Tree1");
@@ -21,82 +17,63 @@ startup
         
         settings.Add("Tree2", true, "Optional splits", "MAIN");
             settings.Add("OPT2", true, "Ladder Split (When lightbulb man climbs the ladder)", "Tree2");
-            settings.Add("OPT3", true, "Squirrel Split (When the squirrel is clicked)", "Tree2");
-    
+            settings.Add("OPT3", true, "Squirrel Split (When the squirrel is clicked)", "Tree2"); 
 }
 
-update
-{
-    //Checks on the Value. If it changes, adds 1 to the SetChecker. Note that one change happens on the game startup, so the initial value is practically not 0, but 1
-    if (current.Value != old.Value)
-    {
+update{
+    if (current.Value != old.Value){
      vars.SetChecker++;
     }
 }
 
-start // If the Start value was previously 5 and changes to 8, that means the run can start. Again, no clue how this value behaves apart from this bit.
-{
-    if (current.Start == 8 && old.Start == 5)
-    {
+start{
+    if (current.Start == 8 && old.Start == 5 && vars.SetChecker == 1){
         return true;
     }
 }
 
-split //If the setting is checked, the AS splits when the SetChecker reaches a specific number. Code is structured in the order in which the value changes occur.
-{
-    if(vars.SetChecker == 3 && old.Value != 1) //Split to Level 1
-    {
+split{
+    if(vars.SetChecker == 3 && old.Value != 1){ //Split to Level 1   
         return settings["LEVEL1"];
     }
 
-    if(vars.SetChecker == 4 && old.Value == 1) //Split to Level 2
-    {
+    if(vars.SetChecker == 4 && old.Value == 1){ //Split to Level 2
         return settings["LEVEL2"];
     }
 
-    if(vars.SetChecker == 5 && old.Value != 1) //Split to Level 3
-    {
+    if(vars.SetChecker == 5 && old.Value != 1){ //Split to Level 3
         return settings["LEVEL3"];
     }
 
-    if(vars.SetChecker == 6 && old.Value == 1) //Ladder split
-    {
+    if(vars.SetChecker == 6 && old.Value == 1){ //Ladder split
         return settings["OPT2"];
     }
 
-    if(vars.SetChecker == 7 && old.Value != 1) //Split to Level 4
-    {
+    if(vars.SetChecker == 7 && old.Value != 1){ //Split to Level 4
         return settings["LEVEL4"];
     }
 
-    if(vars.SetChecker == 8 && old.Value == 1) //Squirrel split
-    {
+    if(vars.SetChecker == 8 && old.Value == 1){ //Squirrel split
         return settings["OPT3"];
     }
 
-    if(vars.SetChecker == 9 && old.Value != 1) //Split to Level 5
-    {
+    if(vars.SetChecker == 9 && old.Value != 1){ //Split to Level 5
         return settings["LEVEL5"];
     }
 
-    if(vars.SetChecker == 11 && old.Value != 1) //Split to Level 6
-    {
+    if(vars.SetChecker == 11 && old.Value != 1){ //Split to Level 6
         return settings["LEVEL6"];
     }
 
-    if(vars.SetChecker == 12 && old.Value == 1) //Ending split
-    {
+    if(vars.SetChecker == 12 && old.Value == 1){ //Ending split (click on the lever)
         return settings["END"];
     }
 }
 
-//These reset the SetChecker if the counter is reset or the game is exited.
-onReset
-{
+onReset{
     vars.SetChecker = 0;
 }
 
-exit
-{
+exit{
     vars.SetChecker = 0;
 }
