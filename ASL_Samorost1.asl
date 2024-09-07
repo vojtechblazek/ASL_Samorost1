@@ -1,10 +1,15 @@
+//Samorost 1 Auto Splitter by vojtechblazek
+//version 1.2.0, date 7. 9. 2024
+//Fixes: Fixed autosplitter not working while resetting the game at the incorrect time, wihch was a small window.
 state("Samorost1"){
     uint Value: "Adobe AIR.dll", 0x00DCD3B8, 0xCFC, 0x4, 0x1B4, 0x1C, 0x99C;
     uint Start: "Adobe AIR.dll", 0xDCBDA0; //It's a direct adress, why it works, don't ask me
 }
 
 startup{
-    vars.SetChecker = 0;
+    vars.SetChecker = 1;
+    vars.isTiming = false;
+
     settings.Add("MAIN", true, "Splits");
         settings.Add("Tree1", true, "Levels", "MAIN");
             settings.Add("LEVEL1", true, "Skiing Hill", "Tree1");
@@ -21,13 +26,21 @@ startup{
 }
 
 update{
-    if (current.Value != old.Value){
-     vars.SetChecker++;
+    if (current.Value != old.Value && vars.isTiming == true){
+        vars.SetChecker++;
+    }
+    
+    if(current.Value != old.Value){
+        print("SetChecker = "+vars.SetChecker+", Value changed from ["+old.Value+"] to ["+current.Value); 
+    }
+    if(current.Start != old.Start){
+        print("Start changed from ["+old.Start+"] to ["+current.Start); 
     }
 }
 
 start{
     if (current.Start == 8 && old.Start == 5 && vars.SetChecker == 1){
+        vars.isTiming = true;
         return true;
     }
 }
@@ -66,14 +79,18 @@ split{
     }
 
     if(vars.SetChecker == 12 && old.Value == 1){ //Ending split (click on the lever)
+        vars.isTiming = false;
+        vars.SetChecker = 1;
         return settings["END"];
     }
 }
 
 onReset{
-    vars.SetChecker = 0;
+    vars.SetChecker = 1;
+    vars.isTiming = false;
 }
 
 exit{
-    vars.SetChecker = 0;
+    vars.SetChecker = 1;
+    vars.isTiming = false;
 }
