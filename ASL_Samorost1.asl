@@ -86,11 +86,11 @@ split{
 }
 
 onReset{
+    vars.isTiming = false;    
     vars.SetChecker = 1;
-    vars.isTiming = false;
 }
 
 exit{
+    vars.isTiming = false;    
     vars.SetChecker = 1;
-    vars.isTiming = false;
 }
